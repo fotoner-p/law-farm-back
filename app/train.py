@@ -22,13 +22,10 @@ Original file is located at
 """# 데이터 전처리"""
 
 from konlpy.tag import Mecab
-import numpy as np
 import pandas as pd
-import re
-import os
+
 import gensim
 from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.preprocessing.sequence import pad_sequences
 from gensim.models.word2vec import Word2Vec
 import json
 
@@ -131,13 +128,6 @@ paragraph_data = {
     } for paragraph in paragraph_data
 }
 
-target_key = '자동차손해배상 보장법 제45조의2 제1항'
-
-print(f'{target_key}: {paragraph_data[target_key]["text"]}\n')
-
-for key, weight in paragraph_model.similar_by_word(target_key, 3):
-    print(f'{key}: {paragraph_data[key]["text"]}')
-
 with open('all_statutes.json', 'r') as f:
     statute_data: dict = json.load(f)
 
@@ -188,28 +178,3 @@ for statute in statute_data:
 article_model = gensim.models.KeyedVectors(vector_size=100)
 article_model.add_vectors(weights=article_weights, keys=article_list)
 article_model.save("./build/article_model.kv")
-
-
-target_key = '도로교통법 제15조의2'
-# target_key = '주택건설기준 등에 관한 규정 제60조의7'
-print(f'[target] {target_key}: {article_text[target_key]}\n')
-
-for key, weight in article_model.similar_by_word(target_key):
-    print(f'{key}: {article_text[key]}\n')
-
-target_key = '도로교통법 제15조의2'
-# target_key = '주택건설기준 등에 관한 규정 제60조의7'
-print(f'[target] {target_key}: {article_text[target_key]}\n')
-
-for key, weight in paragraph_model.similar_by_vector(article_model[target_key]):
-    print(f'{key}: {paragraph_data[key]["text"]}\n')
-
-# article_model.save_word2vec_format("./build/article_model")
-
-# np.savetxt('article_tensor.tsv', article_weights, delimiter='\t')
-# with open('article_meta.tsv', 'w') as f:
-#     f.write(f'key\ttype[key]\n')
-#     for idx, key in enumerate(article_list):
-#         f.write(f'{key}\t{article_type[key]}\n')
-
-# !python3 - m gensim.scripts.word2vec2tensor - -input. / build / article_model - -output. / build / article_model

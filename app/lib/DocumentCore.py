@@ -39,6 +39,12 @@ class Core:
         cur_vector = self.vectorize_text(text)
         return self.article_model.similar_by_vector(cur_vector, topn=size)
 
+    def relate_paragraph(self, key, size):
+        return self.paragraph_model.similar_by_key(key, topn=size)
+
+    def relate_article(self, key, size):
+        return self.article_model.similar_by_key(key, topn=size)
+
     def article_to_paragraph(self, key, size):
         cur_vector = self.article_model.get_vector(key)
         return self.paragraph_model.similar_by_vector(cur_vector, topn=size)
@@ -46,3 +52,4 @@ class Core:
     def paragraph_to_article(self, key, size):
         cur_vector = self.paragraph_model.get_vector(key)
         return self.article_model.similar_by_vector(cur_vector, topn=size)
+

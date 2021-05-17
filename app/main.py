@@ -1,6 +1,7 @@
 from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
-from routers import ml
+
+from routers import ml, law
 
 # from .schemas import models
 # from .schemas.models import engine
@@ -15,7 +16,7 @@ origins = [
 ]
 
 api_router = APIRouter()
-routers = [ml]
+routers = [ml, law]
 
 for route in routers:
     app.include_router(route.router)
