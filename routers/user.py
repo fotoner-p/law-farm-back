@@ -1,7 +1,6 @@
-from typing import List, Optional
-import bcrypt
+from typing import List
 
-from fastapi import APIRouter, Form, HTTPException, Depends
+from fastapi import APIRouter, Form, Depends
 
 from routers.auth import current_jwt_validate
 from schemas.database import database

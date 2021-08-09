@@ -1,6 +1,4 @@
 import json
-from gensim.models import KeyedVectors
-from konlpy.tag import Mecab
 
 
 def get_paragraph_dict():
