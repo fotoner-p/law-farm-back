@@ -1,7 +1,0 @@
-pydantic~=1.8.2
-fastapi~=0.65.1
-gensim~=4.0.1
-konlpy~=0.5.2
-numpy~=1.19.5
-pandas~=1.2.4
-tensorflow~=2.5.0
