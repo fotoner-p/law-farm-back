@@ -5,7 +5,7 @@ ENV MECAB_VERSION mecab-0.996-ko-0.9.2
 ENV MECAB_DICT_VERSION mecab-ko-dic-2.1.1-20180720
 ENV MECAB_PYTHON_VERSION mecab-python-0.996
 
-#EXPOSE 80
+EXPOSE 8000
 
 RUN mkdir -p /app
 WORKDIR /app
@@ -49,4 +49,4 @@ RUN set -ex \
     && python setup.py install
 
 
-CMD ["uvicorn", "main:app", "--host", "localhost", "--port", "8000", "--reload"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
