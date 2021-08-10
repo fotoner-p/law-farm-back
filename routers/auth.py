@@ -7,13 +7,14 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 
 import bcrypt
+import os
 
 from DTO.userDTO import UserDTO
 from schemas.database import database
 
 db = database()
 
-SECRET_KEY = "lawfarm2021"
+SECRET_KEY = os.getenv("AUTH_SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 

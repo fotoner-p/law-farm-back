@@ -21,6 +21,7 @@ services:
       MYSQL_USER: root
       MYSQL_PASSWORD: lawfarm2021
       MYSQL_DB: lawfarm
+      AUTH_SECRET_KEY: lawfarm2021
 volumes:
   law-mysql-data:
 
