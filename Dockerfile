@@ -50,3 +50,6 @@ RUN set -ex \
 
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+# 디버그와 개발을 하기 위해서 아래와 같은 환경으로 실행시키기 권장
+# docker run --name law-container -d -p 8000:8000 -e DEBUG=true -v $(pwd):/app --link mysql-container:mysql  law-farm-app:latest

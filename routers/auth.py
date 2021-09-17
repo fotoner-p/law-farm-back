@@ -10,11 +10,12 @@ import bcrypt
 import os
 
 from DTO.userDTO import UserDTO
-from schemas.database import database
+from schemas.legacyDatabase import LegacyDatabase
 
-db = database()
+db = LegacyDatabase()
 
-SECRET_KEY = os.getenv("AUTH_SECRET_KEY")
+SECRET_KEY = "lawfarm2021" if os.getenv("DEBUG") else os.getenv("AUTH_SECRET_KEY")
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 

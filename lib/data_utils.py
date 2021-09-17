@@ -33,13 +33,13 @@ def get_article_dict():
     return article_data
 
 
-def word_tagging(content: list):
-    re_content = []
-    for item in content:
-        re_str = item
-        result = [item[0] + "/" + item[1] for item in nlp.pos(re_str)]
-        result_str = " ".join(result)
-        re_content.append(result_str)
-
-    return re_content
+# def word_tagging(content: list):
+#     re_content = []
+#     for item in content:
+#         re_str = item
+#         result = [item[0] + "/" + item[1] for item in nlp.pos(re_str)]
+#         result_str = " ".join(result)
+#         re_content.append(result_str)
+#
+#     return re_content
 

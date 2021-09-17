@@ -1,19 +1,17 @@
 from typing import List
 from pydantic import BaseModel
 
-from .itemDTO import ItemDTO
 
-
-class UserBaseDTO(BaseModel):
+class UserBase(BaseModel):
     email: str
 
 
-class UserCreateDTO(UserBaseDTO):
+class UserCreate(UserBase):
     password: str
     is_active: bool = True
 
 
-class UserDTO(UserBaseDTO):
+class User(UserBase):
     id: int
     is_active: bool
 

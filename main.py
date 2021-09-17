@@ -1,27 +1,23 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import ml, law, auth, user
+from core.config import settings
+from api.v1.api import api_router
+from db.init_db import init_db
 
-app = FastAPI()
-origins = [
-    'http://localhost:3000',
-]
+init_db()
 
-api_router = APIRouter()
-routers = [
-    ml, law, auth, user
-]
-
-for route in routers:
-    app.include_router(route.router)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+app = FastAPI(
+    title=settings.API_SERVER_NAME, openapi_url=f"{settings.API_V1_PATH}/openapi.json"
 )
 
-app.include_router(api_router)
+if settings.BACKEND_CORS_ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+app.include_router(api_router, prefix=settings.API_V1_PATH)

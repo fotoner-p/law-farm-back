@@ -3,10 +3,10 @@ from typing import Optional
 from fastapi import APIRouter, Depends
 from lib.data_utils import get_paragraph_dict, get_article_dict
 from routers.auth import current_jwt_validate
-from schemas.database import database
+from schemas.legacyDatabase import LegacyDatabase
 from DTO.userDTO import UserDTO
 
-db = database()
+db = LegacyDatabase()
 
 router = APIRouter(
     prefix="/law",

@@ -1,10 +1,10 @@
 from databases import Database
-from schemas import db_config
+from schemas import DB_ENV
 
 
-class database:
+class LegacyDatabase:
     def __init__(self):
-        self.base: Database = Database(f'mysql://{db_config["user"]}:{db_config["password"]}@{db_config["host"]}/{db_config["db"]}')
+        self.base: Database = Database(f'mysql://{DB_ENV["user"]}:{DB_ENV["password"]}@{DB_ENV["host"]}/{DB_ENV["db"]}')
 
     async def execute(self, query, args=None):
         await self.base.execute(query, args)

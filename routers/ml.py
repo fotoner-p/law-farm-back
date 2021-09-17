@@ -1,13 +1,16 @@
+from fastapi import APIRouter, Query, Depends
 from typing import Optional
 
-from fastapi import APIRouter, Query, Depends
 from lib.DocumentCore import Core
-from schemas.database import database
 from lib.data_utils import get_paragraph_dict, get_article_dict
+
+from schemas.legacyDatabase import LegacyDatabase
+
 from DTO.userDTO import UserDTO
+
 from routers.auth import current_jwt_validate
 
-db = database()
+db = LegacyDatabase()
 
 router = APIRouter(
     prefix="/ml",
@@ -28,9 +31,9 @@ async def read_all_users(
 ):
     try:
         if target == "article":
-            result = nlp_core.search_article(query, size)
+            result = nlp_core.article.search(query, size)
         else:
-            result = nlp_core.search_paragraph(query, size)
+            result = nlp_core.paragraph.search(query, size)
     except:
         return {
           "result": [],
@@ -57,7 +60,7 @@ async def relate_article(
     size: Optional[int] = 25
 ):
     try:
-        result = nlp_core.relate_article(key, size)
+        result = nlp_core.article.article(key, size)
         reform = {
             "result": [
                 {
@@ -84,7 +87,7 @@ async def relate_paragraph(
     size: Optional[int] = 25
 ):
     try:
-        result = nlp_core.relate_paragraph(key, size)
+        result = nlp_core.paragraph.paragraph(key, size)
         reform = {
             "result": [
                 {
@@ -110,7 +113,7 @@ async def to_paragraph(
     size: Optional[int] = 25
 ):
     try:
-        result = nlp_core.article_to_paragraph(key, size)
+        result = nlp_core.article.paragraph(key, size)
         reform = {
             "result": [
                 {
@@ -137,7 +140,7 @@ async def to_article(
     size: Optional[int] = 25
 ):
     try:
-        result = nlp_core.paragraph_to_article(key, size)
+        result = nlp_core.paragraph.article(key, size)
         reform = {
             "result": [
                 {
