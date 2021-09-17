@@ -11,8 +11,7 @@ create table user
 
 create table bookmark
 (
-    id           int auto_increment
-        primary key,
+    id           int auto_increment                 primary key,
     user_id      int                                not null,
     content_type char(15)                           not null,
     created_at   datetime default CURRENT_TIMESTAMP not null,
@@ -23,8 +22,7 @@ create table bookmark
 
 create table view_log
 (
-    id           int auto_increment
-        primary key,
+    id           int auto_increment                 primary key,
     user_id      int                                not null,
     created_at   datetime default CURRENT_TIMESTAMP null,
     content_key  varchar(99)                        not null,
