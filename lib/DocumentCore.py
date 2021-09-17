@@ -1,9 +1,9 @@
-from Word2VecWrapper import Word2VecWrapper
 from gensim.models import KeyedVectors
 
-from BaseNlpModel import BaseNlpModel
-from ArticleModel import ArticleModel
-from ParagraphModel import ParagraphModel
+from lib.Word2VecWrapper import Word2VecWrapper
+from lib.BaseNlpModel import BaseNlpModel
+from lib.ArticleModel import ArticleModel
+from lib.ParagraphModel import ParagraphModel
 
 
 class Core:

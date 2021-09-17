@@ -1,6 +1,11 @@
 import os
 
-db_config = {
+DB_ENV = {
+    "user": "root",
+    "password": "lawfarm2021",
+    "host": "mysql",
+    "db": "lawfarm",
+} if os.getenv("DEBUG") else {
     "user": os.getenv("MYSQL_USER"),
     "password": os.getenv("MYSQL_PASSWORD"),
     "host": os.getenv("MYSQL_HOST"),

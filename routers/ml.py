@@ -1,13 +1,16 @@
+from fastapi import APIRouter, Query, Depends
 from typing import Optional
 
-from fastapi import APIRouter, Query, Depends
 from lib.DocumentCore import Core
-from schemas.database import database
 from lib.data_utils import get_paragraph_dict, get_article_dict
+
+from schemas.legacyDatabase import LegacyDatabase
+
 from DTO.userDTO import UserDTO
+
 from routers.auth import current_jwt_validate
 
-db = database()
+db = LegacyDatabase()
 
 router = APIRouter(
     prefix="/ml",

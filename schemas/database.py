@@ -1,19 +1,11 @@
-from databases import Database
-from schemas import db_config
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
+from schemas import DB_ENV
 
-class database:
-    def __init__(self):
-        self.base: Database = Database(f'mysql://{db_config["user"]}:{db_config["password"]}@{db_config["host"]}/{db_config["db"]}')
+DATABASE_URL = f'mysql://{DB_ENV["user"]}:{DB_ENV["password"]}@{DB_ENV["host"]}/{DB_ENV["db"]}'
 
-    async def execute(self, query, args=None):
-        await self.base.execute(query, args)
+engine = create_engine(DATABASE_URL)
 
-    async def executeOne(self, query, args=None):
-        row = await self.base.fetch_one(query, args)
-        return row
-
-    async def executeAll(self, query, args=None):
-        rows = await self.base.fetch_all(query, args)
-        return rows
-
+SessionLocal = sessionmaker()

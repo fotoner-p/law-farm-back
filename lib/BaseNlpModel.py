@@ -1,13 +1,14 @@
 from abc import *
-from Word2VecWrapper import Word2VecWrapper
 from gensim.models import KeyedVectors
+
+from lib.Word2VecWrapper import Word2VecWrapper
 
 
 class BaseNlpModel(metaclass=ABCMeta):
     def __init__(self, *, word2vec_model: Word2VecWrapper, article: KeyedVectors, paragraph: KeyedVectors):
-        self.__word2vec = word2vec_model
-        self.__article = article
-        self.__paragraph = paragraph
+        self._word2vec = word2vec_model
+        self._article = article
+        self._paragraph = paragraph
 
     @abstractmethod
     def search(self, text, size):

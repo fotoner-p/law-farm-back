@@ -3,10 +3,10 @@ from typing import List
 from fastapi import APIRouter, Form, Depends
 
 from routers.auth import current_jwt_validate
-from schemas.database import database
+from schemas.legacyDatabase import LegacyDatabase
 from DTO.userDTO import UserDTO
 
-db = database()
+db = LegacyDatabase()
 
 router = APIRouter(
     prefix="/user",

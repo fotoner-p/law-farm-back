@@ -50,3 +50,4 @@ RUN set -ex \
 
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# docker run --name law-container -d -p 8000:8000 -e DEBUG=true -v $(pwd):/app --link mysql-container:mysql  law-farm-app:latest
