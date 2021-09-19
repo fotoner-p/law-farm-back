@@ -2,7 +2,11 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 
+from sqlalchemy.orm import Session
 
+import crud.log
+import models
+import schemas
 from lib.data_utils import get_paragraph_dict, get_article_dict
 import api.dependency as deps
 
@@ -29,13 +33,45 @@ def reform_result(key: str, info_dict: dict):
 
 
 @router.get("/article/@{key}")
-def get_article(key: str):
-    return reform_result(key, article_dict)
+def get_article(
+        key: str,
+        db: Session = Depends(deps.get_db),
+        current_user: models.User = Depends(deps.get_current_user_or_none)
+):
+    """
+    jwt 토큰이 존재할 경우 해당 계정 토큰을 기준으로 로깅 처리가 된다<br>
+    (토큰이 존재하지 않을경우 결과만 반환)
+    """
+    article = reform_result(key, article_dict)
+    if current_user:
+        log = schemas.LogCreate(
+            content_key=key,
+            content_type='article'
+        )
+        res = crud.log.create_user_log(db, user=current_user, view=log)
+        print(res)
+    return article
 
 
 @router.get("/paragraph/@{key}")
-def get_paragraph(key: str):
-    return reform_result(key, paragraph_dict)
+def get_paragraph(
+        key: str,
+        db: Session = Depends(deps.get_db),
+        current_user: models.User = Depends(deps.get_current_user_or_none)
+):
+    """
+    jwt 토큰이 존재할 경우 해당 계정 토큰을 기준으로 로깅 처리가 된다 <br>
+    (토큰이 존재하지 않을경우 결과만 반환)
+    """
+    paragraph = reform_result(key, paragraph_dict)
+    if current_user:
+        log = schemas.LogCreate(
+            content_key=key,
+            content_type='paragraph'
+        )
+        res = crud.log.create_user_log(db, user=current_user, view=log)
+        print(res)
+    return paragraph
 
 
 @router.get("/keyword/dict")

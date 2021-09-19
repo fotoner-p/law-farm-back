@@ -15,3 +15,5 @@
 from .user import User, UserBase, UserCreate
 from .token import TokenPayload, Token
 from .bookmark import Bookmark, BookmarkBase, BookmarkCreate
+from .log import LogBase, LogCreate, Log
+

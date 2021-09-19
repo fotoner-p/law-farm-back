@@ -1,4 +1,4 @@
-from typing import Generator
+from typing import Generator, Any
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -15,6 +15,11 @@ import models, schemas, crud
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_PATH}/login/access-token"
+)
+
+optional_oauth2 = OAuth2PasswordBearer(
+    tokenUrl=f"{settings.API_V1_PATH}/login/access-token",
+    auto_error=False
 )
 
 
@@ -43,6 +48,15 @@ def get_current_user(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+
+def get_current_user_or_none(
+    db: Session = Depends(get_db), token: str = Depends(optional_oauth2)
+) -> Any:
+    if not token:
+        return None
+    else:
+        return get_current_user(db, token)
 
 
 def get_current_active_user(
