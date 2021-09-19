@@ -1,10 +1,7 @@
-from typing import Any
-
 from sqlalchemy.orm import Session
 
 import models
 import schemas
-from core.security import get_password_hash, verify_password
 
 
 def exist(db: Session, *, user: models.User, bookmark: schemas.BookmarkCreate):

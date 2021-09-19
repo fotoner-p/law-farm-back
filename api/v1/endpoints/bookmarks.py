@@ -21,7 +21,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=List[schemas.Bookmark])
+@router.get("/me", response_model=List[schemas.Bookmark])
 def read_bookmarks(
         db: Session = Depends(deps.get_db),
         current_user: models.User = Depends(deps.get_current_active_user)
@@ -30,7 +30,7 @@ def read_bookmarks(
     return bookmarks
 
 
-@router.post("/", response_model=schemas.Bookmark)
+@router.post("/me", response_model=schemas.Bookmark)
 def add_bookmark(
         *,
         db: Session = Depends(deps.get_db),
@@ -47,7 +47,7 @@ def add_bookmark(
     return bookmark
 
 
-@router.delete("/", )
+@router.delete("/me", response_model=schemas.Bookmark)
 def delete_bookmark(
         *,
         db: Session = Depends(deps.get_db),
