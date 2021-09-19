@@ -1,7 +1,7 @@
 # law-farm-api
 <pre><code>docker-compose up -d 
 </code></pre>
-[API Docs](http://api.fotone.moe:8000/docs, "api link")
+[API Docs](http://api.fotone.moe:8000/docs)
 
 # TODO
 
