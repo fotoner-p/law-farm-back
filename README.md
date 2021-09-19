@@ -1,7 +1,7 @@
 # law-farm-api
 <pre><code>docker-compose up -d 
 </code></pre>
-[API Docs](http://api.fotone.moe:8000/docs)
+[API Docs](http://api.fotone.moe:8000/docs) <- 조만간 deprecated 되고 새로 배포될 예정   
 
 # TODO
 
