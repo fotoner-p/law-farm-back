@@ -1,5 +1,6 @@
 from typing import List
 from pydantic import BaseModel
+from schemas.bookmark import Bookmark
 
 
 class UserBase(BaseModel):

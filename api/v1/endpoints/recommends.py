@@ -26,7 +26,7 @@ def reform_result(data: dict, info_dict: dict):
                 "about": info_dict[val[0]]
             } for val in data
         ],
-        "message": "ok"
+        "detail": "ok"
     }
 
 
