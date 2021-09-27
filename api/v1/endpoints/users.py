@@ -39,5 +39,5 @@ def create_user(
             status_code=400,
             detail="The user with this email already exists in the system."
         )
-    user = crud.user.create(db, user_in=user_in)
+    user = crud.user.create(db, obj_in=user_in)
     return user

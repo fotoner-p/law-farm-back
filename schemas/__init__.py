@@ -12,8 +12,8 @@
 #     "db": os.getenv("MYSQL_DB"),
 # }
 
-from .user import User, UserBase, UserCreate
+from .user import User, UserBase, UserCreate, UserUpdate
 from .token import TokenPayload, Token
-from .bookmark import Bookmark, BookmarkBase, BookmarkCreate
-from .log import LogBase, LogCreate, Log
+from .bookmark import Bookmark, BookmarkBase, BookmarkCreate, BookmarkUpdate
+from .log import LogBase, LogCreate, Log, LogUpdate
 

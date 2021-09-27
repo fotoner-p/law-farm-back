@@ -12,6 +12,10 @@ class LogCreate(LogBase):
     pass
 
 
+class LogUpdate(LogBase):
+    pass
+
+
 class Log(LogBase):
     created_at: datetime.datetime
     id: int

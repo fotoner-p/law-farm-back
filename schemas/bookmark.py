@@ -12,6 +12,10 @@ class BookmarkCreate(BookmarkBase):
     pass
 
 
+class BookmarkUpdate(BookmarkBase):
+    pass
+
+
 class Bookmark(BookmarkBase):
     created_at: datetime.datetime
     id: int

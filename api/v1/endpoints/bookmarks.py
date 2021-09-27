@@ -26,7 +26,7 @@ def read_bookmarks(
         db: Session = Depends(deps.get_db),
         current_user: models.User = Depends(deps.get_current_active_user)
 ) -> Any:
-    bookmarks = crud.bookmark.get_multi_by_user(db, user=current_user)
+    bookmarks = crud.bookmark.get_multi_by_owner(db, owner=current_user)
     return bookmarks
 
 
@@ -37,12 +37,12 @@ def add_bookmark(
         current_user: models.User = Depends(deps.get_current_active_user),
         bookmark_in: schemas.BookmarkCreate
 ) -> Any:
-    if crud.bookmark.exist(db, user=current_user, bookmark=bookmark_in):
+    if crud.bookmark.is_exist(db, user=current_user, bookmark=bookmark_in):
         raise HTTPException(
             status_code=400,
             detail="This bookmark already exists."
         )
-    bookmark = crud.bookmark.create_user_bookmark(db, user=current_user, bookmark=bookmark_in)
+    bookmark = crud.bookmark.create_with_owner(db, owner_id=current_user.id, obj_in=bookmark_in)
 
     return bookmark
 
@@ -54,10 +54,10 @@ def delete_bookmark(
         bookmark_id: int,
         current_user: models.User = Depends(deps.get_current_active_user),
 ):
-    bookmark = crud.bookmark.get_by_user(db, bookmark_id=bookmark_id, user=current_user)
+    bookmark = crud.bookmark.get_with_owner(db, bookmark_id=bookmark_id, owner=current_user)
 
     if not bookmark:
         raise HTTPException(status_code=404, detail="Item not found")
 
-    item = crud.bookmark.remove_bookmark(db=db, bookmark_id=bookmark_id)
+    item = crud.bookmark.remove(db=db, obj_id=bookmark_id)
     return item

@@ -1,15 +1,19 @@
-from typing import List
-from pydantic import BaseModel
+from typing import Optional
+from pydantic import BaseModel, EmailStr
 from schemas.bookmark import Bookmark
 
 
 class UserBase(BaseModel):
-    email: str
+    email: EmailStr
     username: str
 
 
 class UserCreate(UserBase):
     password: str
+
+
+class UserUpdate(UserBase):
+    password: Optional[str] = None
 
 
 class User(UserBase):

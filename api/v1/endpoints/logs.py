@@ -26,5 +26,5 @@ def read_bookmarks(
         db: Session = Depends(deps.get_db),
         current_user: models.User = Depends(deps.get_current_active_user)
 ) -> Any:
-    logs = crud.log.get_multi_by_user(db, user=current_user)
+    logs = crud.log.get_multi_by_owner(db, owner=current_user)
     return logs

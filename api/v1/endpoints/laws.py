@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from sqlalchemy.orm import Session
 
-import crud.log
+import crud
 import models
 import schemas
 from lib.data_utils import get_paragraph_dict, get_article_dict
@@ -48,8 +48,7 @@ def get_article(
             content_key=key,
             content_type='article'
         )
-        res = crud.log.create_user_log(db, user=current_user, view=log)
-        print(res)
+        res = crud.log.create_with_owner(db, obj_in=log, owner_id=current_user.id)
     return article
 
 
@@ -69,8 +68,7 @@ def get_paragraph(
             content_key=key,
             content_type='paragraph'
         )
-        res = crud.log.create_user_log(db, user=current_user, view=log)
-        print(res)
+        res = crud.log.create_with_owner(db, obj_in=log, owner_id=current_user.id)
     return paragraph
 
 
