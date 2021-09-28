@@ -8,10 +8,10 @@ from app.lib.ParagraphModel import ParagraphModel
 
 class Core:
     def __init__(self):
-        word2vec: Word2VecWrapper = Word2VecWrapper("./build/w2v.model")
+        word2vec: Word2VecWrapper = Word2VecWrapper("./app/build/w2v.model")
 
-        articleVector: KeyedVectors = KeyedVectors.load("./build/article_model.kv")
-        paragraphVector: KeyedVectors = KeyedVectors.load("./build/paragraph_model.kv")
+        articleVector: KeyedVectors = KeyedVectors.load("./app/build/article_model.kv")
+        paragraphVector: KeyedVectors = KeyedVectors.load("./app/build/paragraph_model.kv")
 
         self.__article: BaseNlpModel = ArticleModel(
             word2vec_model=word2vec, article=articleVector, paragraph=paragraphVector
