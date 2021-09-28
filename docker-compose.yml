@@ -1,12 +1,11 @@
 version: "3.7"
 
 services:
-  mysql:
-    platform: linux/x86_64
+  db:
     image: mysql:5.7
+    platform: linux/x86_64
     volumes:
       - law-mysql-data:/var/lib/mysql
-      - ./initdb:/docker-entrypoint-initdb.d
     environment:
       MYSQL_ROOT_PASSWORD: lawfarm2021
       MYSQL_DATABASE: lawfarm
@@ -19,8 +18,7 @@ services:
     ports:
       - "8000:80"
     environment:
-      DEBUG: false
-      MYSQL_HOST: mysql
+      MYSQL_HOST: db
       MYSQL_USER: root
       MYSQL_PASSWORD: lawfarm2021
       MYSQL_DB: lawfarm
