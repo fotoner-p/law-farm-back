@@ -1,6 +1,7 @@
 from typing import Any, List
+from pydantic.networks import EmailStr
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 
 import app.api.dependency as deps
@@ -28,13 +29,18 @@ def read_users(
 def create_user(
         *,
         db: Session = Depends(deps.get_db),
-        user_in: schemas.UserCreate
+        email: EmailStr = Body(...),
+        password: str = Body(..., min_length=10, max_length=72),
+        username: str = Body(..., min_length=3, max_length=20),
 ) -> Any:
-    user = crud.user.get_by_email(db, email=user_in.email)
+    user = crud.user.get_by_email(db, email=email)
     if user:
         raise HTTPException(
             status_code=400,
             detail="The user with this email already exists in the system."
         )
+
+    user_in = schemas.UserCreate(email=email, password=password, username=username)
     user = crud.user.create(db, obj_in=user_in)
+
     return user
