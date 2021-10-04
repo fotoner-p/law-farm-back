@@ -9,7 +9,7 @@ from app.core.config import settings
 from app.core.security import create_access_token
 
 import app.api.dependency as deps
-from app import crud, schemas
+from app import crud, schemas, models
 
 router = APIRouter(
     prefix="/login",
@@ -40,3 +40,8 @@ def login_access_token(
         ),
         "token_type": "bearer",
     }
+
+
+@router.post("/test-token", response_model=schemas.User)
+def test_token(current_user: models.User = Depends(deps.get_current_user)) -> Any:
+    return current_user
