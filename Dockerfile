@@ -19,3 +19,4 @@ RUN curl -L https://raw.githubusercontent.com/konlpy/konlpy/master/scripts/mecab
 
 # 디버그와 개발을 하기 위해서 아래와 같은 환경으로 실행시키기 권장
 # docker run --name law-container -d -p 8000:80 -v $(pwd)/app:/app/app --link mysql-container:mysql  law-farm-app:latest /start-reload.sh
+# docker run --name mysql-container -e MYSQL_DATABASE=lawfarm -e MYSQL_ROOT_PASSWORD=lawfarm2021 -d -p 3306:3306 mysql:5.7 --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
