@@ -17,7 +17,7 @@ router = APIRouter(
 
 
 @router.get("/", response_model=List[schemas.User], dependencies=[Depends(deps.get_current_active_superuser)])
-def read_users(
+def admin_read_users(
         db: Session = Depends(deps.get_db),
         skip: int = 0,
         limit: int = 100,
@@ -31,7 +31,7 @@ def create_user(
         *,
         db: Session = Depends(deps.get_db),
         email: EmailStr = Body(...),
-        password: str = Body(..., min_length=10, max_length=72),
+        password: str = Body(..., min_length=8, max_length=72),
         username: str = Body(..., min_length=3, max_length=20),
 ) -> Any:
     user = crud.user.get_by_email(db, email=email)

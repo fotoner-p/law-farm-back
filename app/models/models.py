@@ -58,17 +58,21 @@ class Forum(Base):
     id = Column(Integer, primary_key=True, index=True)
     owner_id = Column(Integer, ForeignKey("users.id"))
     title = Column(String(30), index=True, nullable=False)
-    secret = Column(Boolean(), nullable=False)
+    secret = Column(Boolean(), nullable=False, default=False)
     forum_type = Column(String(99), nullable=False)
     main = Column(Text(4294000000), nullable=False, default='')
+    parse_short_main = Column(Text(4294000000), nullable=False, default='')
     created_at = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
     like_count = Column(Integer, nullable=False, default=0)
+    view_count = Column(Integer, nullable=False, default=0)
+    comment_count = Column(Integer, nullable=False, default=0)
 
     owner = relationship("User", back_populates="forums")
 
     counts = relationship("ForumCount", back_populates="forum_owner")
     likes = relationship("ForumLike", back_populates="forum_owner")
     answers = relationship("ForumAnswer", back_populates="forum_owner")
+
 
 class ForumCount(Base):
     __tablename__ = 'forum_count'
@@ -94,7 +98,7 @@ class ForumLike(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
 
     owner = relationship("User", back_populates="forum_likes")
-    forum_owner = relationship("Forum", back_populates="counts")
+    forum_owner = relationship("Forum", back_populates="likes")
 
 
 class ForumAnswer(Base):
@@ -114,6 +118,7 @@ class ForumAnswer(Base):
     answer_likes = relationship("ForumAnswerLike", back_populates="answer_owner")
     answer_comments = relationship("ForumAnswerComment", back_populates="answer_owner")
 
+
 class ForumAnswerLike(Base):
     __tablename__ = 'forum_answer_like'
 
@@ -125,7 +130,7 @@ class ForumAnswerLike(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
 
     owner = relationship("User", back_populates="forum_answer_likes")
-    answer_owner = relationship("ForumAnswer", back_populates="forum_answer_likes")
+    answer_owner = relationship("ForumAnswer", back_populates="answer_likes")
 
 
 class ForumAnswerComment(Base):
@@ -140,4 +145,5 @@ class ForumAnswerComment(Base):
 
     owner = relationship("User", back_populates="forum_answer_comments")
     answer_owner = relationship("ForumAnswer", back_populates="answer_comments")
+
 

@@ -40,5 +40,26 @@ class CRUDLog(CRUDBase[ViewLog, LogCreate, LogUpdate]):
             .all()
         )
 
+    def get_multi_by_user_id(
+        self, db: Session, *, user_id: int
+    ) -> List[ViewLog]:
+        return (
+            db.query(self.model)
+            .filter(self.model.owner_id == user_id)
+            .order_by(self.model.created_at.desc())
+            .all()
+        )
+
+    def get_multi_by_email(
+        self, db: Session, *, email: str
+    ) -> List[ViewLog]:
+        return (
+            db.query(self.model)
+            .join(models.User)
+            .filter(models.User.email == email)
+            .order_by(self.model.created_at.desc())
+            .all()
+        )
+
 
 log = CRUDLog(ViewLog)

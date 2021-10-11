@@ -16,4 +16,5 @@ from .user import User, UserBase, UserCreate, UserUpdate
 from .token import TokenPayload, Token
 from .bookmark import Bookmark, BookmarkBase, BookmarkCreate, BookmarkUpdate
 from .log import LogBase, LogCreate, Log, LogUpdate
+from .forum import ForumBase, ForumCreate, ForumUpdate, Forum, ForumList, ForumDB
 
