@@ -15,29 +15,65 @@ router = APIRouter(
 )
 
 
-@router.get("/@{user_id}", response_model=List[schemas.Log], dependencies=[Depends(deps.get_current_active_superuser)])
+@router.get("/@{user_id}", response_model=schemas.LogPage, dependencies=[Depends(deps.get_current_active_superuser)])
 def admin_read_bookmarks_by_id(
         user_id: int,
+        skip: int = 0,
+        limit: int = 100,
         db: Session = Depends(deps.get_db),
 ) -> Any:
     logs = crud.log.get_multi_by_user_id(db, user_id=user_id)
-    return logs
+    count = crud.log.get_count_by_user_id(db, user_id=user_id)
+
+    result = {
+        "data": logs,
+        "count": count,
+        "size": len(logs),
+        "skip": skip,
+        "limit": limit
+    }
+
+    return result
 
 
-@router.get("/email", response_model=List[schemas.Log], dependencies=[Depends(deps.get_current_active_superuser)])
+@router.get("/email", response_model=schemas.LogPage, dependencies=[Depends(deps.get_current_active_superuser)])
 def admin_read_bookmarks_by_email(
         email: EmailStr,
+        skip: int = 0,
+        limit: int = 100,
         db: Session = Depends(deps.get_db),
 ) -> Any:
     logs = crud.log.get_multi_by_email(db, email=str(email))
-    return logs
+    count = crud.log.get_count_by_email(db, email=str(email))
+
+    result = {
+        "data": logs,
+        "count": count,
+        "size": len(logs),
+        "skip": skip,
+        "limit": limit
+    }
+
+    return result
 
 
-@router.get("/me", response_model=List[schemas.Log])
+@router.get("/me", response_model=schemas.LogPage)
 def read_bookmarks(
         db: Session = Depends(deps.get_db),
+        skip: int = 0,
+        limit: int = 100,
         current_user: models.User = Depends(deps.get_current_active_user)
 ) -> Any:
     logs = crud.log.get_multi_by_owner(db, owner=current_user)
-    return logs
+    count = crud.log.get_count_by_user_id(db, user_id=current_user.id)
+
+    result = {
+        "data": logs,
+        "count": count,
+        "size": len(logs),
+        "skip": skip,
+        "limit": limit
+    }
+
+    return result
 

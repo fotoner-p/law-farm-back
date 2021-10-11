@@ -14,13 +14,24 @@ router = APIRouter(
 )
 
 
-@router.get("/me", response_model=List[schemas.Bookmark])
+@router.get("/me", response_model=schemas.BookmarkPage)
 def read_bookmarks(
         db: Session = Depends(deps.get_db),
-        current_user: models.User = Depends(deps.get_current_active_user)
+        current_user: models.User = Depends(deps.get_current_active_user),
+        skip: int = 0,
+        limit: int = 100,
 ) -> Any:
-    bookmarks = crud.bookmark.get_multi_by_owner(db, owner=current_user)
-    return bookmarks
+    bookmarks = crud.bookmark.get_multi_by_owner(db, skip=skip, limit=limit, owner=current_user)
+    count = crud.bookmark.get_count_by_owner(db, owner=current_user)
+    result = {
+        "data": bookmarks,
+        "count": count,
+        "size": len(bookmarks),
+        "skip": skip,
+        "limit": limit
+    }
+
+    return result
 
 
 @router.post("/me", response_model=schemas.Bookmark)
@@ -30,7 +41,7 @@ def add_bookmark(
         current_user: models.User = Depends(deps.get_current_active_user),
         bookmark_in: schemas.BookmarkCreate
 ) -> Any:
-    if crud.bookmark.is_exist(db, user=current_user, bookmark=bookmark_in):
+    if crud.bookmark.is_exist(db, owner=current_user, bookmark=bookmark_in):
         raise HTTPException(
             status_code=400,
             detail="This bookmark already exists."
@@ -46,7 +57,7 @@ def delete_bookmark(
         db: Session = Depends(deps.get_db),
         bookmark_id: int,
         current_user: models.User = Depends(deps.get_current_active_user),
-):
+) -> Any:
     bookmark = crud.bookmark.get_with_owner(db, bookmark_id=bookmark_id, owner=current_user)
 
     if not bookmark:

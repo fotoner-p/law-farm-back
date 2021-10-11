@@ -31,25 +31,30 @@ class CRUDBookmark(CRUDBase[Bookmark, BookmarkCreate, BookmarkUpdate]):
         ).first()
 
     def get_multi_by_owner(
-        self, db: Session, *, owner: models.User
+        self, db: Session, *, skip: int = 0, limit: int = 100, owner: models.User
     ) -> List[Bookmark]:
         return (
             db.query(self.model)
             .filter(self.model.owner_id == owner.id)
             .order_by(self.model.created_at.desc())
+            .offset(skip)
+            .limit(limit)
             .all()
         )
 
     def is_exist(
-        self, db: Session, *, user: models.User, bookmark: BookmarkCreate
+        self, db: Session, *, owner: models.User, bookmark: BookmarkCreate
     ) -> bool:
         result = db.query(self.model).filter(
-            self.model.owner_id == user.id and
+            self.model.owner_id == owner.id and
             self.model.content_type == bookmark.content_type and
             self.model.content_key == bookmark.content_key
         ).first()
 
         return True if result else False
+
+    def get_count_by_owner(self, db: Session, *, owner: models.User):
+        return db.query(self.model).filter(self.model.owner_id == owner.id).count()
 
 
 bookmark = CRUDBookmark(Bookmark)

@@ -1,8 +1,8 @@
 import datetime
 
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel
-
+from .user import User
 
 class ForumBase(BaseModel):
     pass
@@ -35,6 +35,7 @@ class ForumDB(ForumDbBase):
     comment_count: int
     view_count: int
 
+
     class Config:
         orm_mode = True
 
@@ -45,3 +46,21 @@ class Forum(ForumDB):
 
 class ForumList(ForumDB):
     parse_short_main: str
+
+
+class ForumUser(ForumDB):
+    main: str
+    user: User
+
+
+class ForumUserList(ForumDB):
+    parse_short_main: str
+    user: User
+
+
+class ForumPage(BaseModel):
+    data: List[ForumUserList] = []
+    count: int
+    size: int
+    skip: int
+    limit: int

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, EmailStr
 
 
@@ -23,3 +23,10 @@ class User(UserBase):
     class Config:
         orm_mode = True
 
+
+class UserPage(BaseModel):
+    data: List[User] = []
+    count: int
+    size: int
+    skip: int
+    limit: int

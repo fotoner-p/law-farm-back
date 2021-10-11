@@ -1,3 +1,5 @@
+from typing import List
+
 import datetime
 
 from pydantic import BaseModel
@@ -23,4 +25,12 @@ class Bookmark(BookmarkBase):
     
     class Config:
         orm_mode = True
+
+
+class BookmarkPage(BaseModel):
+    data: List[Bookmark] = []
+    count: int
+    size: int
+    skip: int
+    limit: int
 

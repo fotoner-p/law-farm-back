@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Union
 
 from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
@@ -13,14 +13,33 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=List[schemas.ForumList])
+def raw_forum_reform(raw):
+    row2dict = lambda r: {c.name: str(getattr(r, c.name)) for c in r.__table__.columns}
+    res_forum = {**row2dict(raw["Forum"]), "user": raw["User"]}
+
+    return res_forum
+
+
+@router.get("/", response_model=schemas.ForumPage)
 def read_forums_multi(
         db: Session = Depends(deps.get_db),
         skip: int = 0,
         limit: int = 100,
 ) -> Any:
     forums = crud.forum.get_multi(db, skip=skip, limit=limit)
-    return forums
+    parsed_forums = [raw_forum_reform(forum) for forum in forums]
+
+    count = crud.forum.get_count(db)
+
+    result = {
+        "data": parsed_forums,
+        "count": count,
+        "size": len(parsed_forums),
+        "skip": skip,
+        "limit": limit
+    }
+
+    return result
 
 
 @router.post("/", response_model=schemas.Forum)
@@ -91,11 +110,16 @@ def delete_forum(
     return forum
 
 
-@router.get("/@{forum_id}", response_model=schemas.Forum)
+@router.get("/@{forum_id}", response_model=schemas.ForumUser)
 def read_forum(
         forum_id: int,
         db: Session = Depends(deps.get_db)
 ) -> Any:
     forum = crud.forum.get(db, obj_id=forum_id)
-    return forum
+    if not forum:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    res_forum = raw_forum_reform(forum)
+
+    return res_forum
 

@@ -1,5 +1,6 @@
 import datetime
 
+from typing import List
 from pydantic import BaseModel
 
 
@@ -22,3 +23,12 @@ class Log(LogBase):
 
     class Config:
         orm_mode = True
+
+
+class LogPage(BaseModel):
+    data: List[Log] = []
+    count: int
+    size: int
+    skip: int
+    limit: int
+

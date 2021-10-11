@@ -61,5 +61,16 @@ class CRUDLog(CRUDBase[ViewLog, LogCreate, LogUpdate]):
             .all()
         )
 
+    def get_count_by_user_id(
+        self, db: Session, *, user_id: int
+    ):
+        return db.query(self.model).filter(self.model.owner_id == user_id).count()
+
+    def get_count_by_email(
+        self, db: Session, *, email: str
+    ):
+        return db.query(self.model).join(models.User).filter(models.User.email == email).count()
+
+
 
 log = CRUDLog(ViewLog)

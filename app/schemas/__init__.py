@@ -1,20 +1,6 @@
-# import os
-#
-# DB_ENV = {
-#     "user": "root",
-#     "password": "lawfarm2021",
-#     "host": "mysql",
-#     "db": "lawfarm",
-# } if os.getenv("DEBUG") else {
-#     "user": os.getenv("MYSQL_USER"),
-#     "password": os.getenv("MYSQL_PASSWORD"),
-#     "host": os.getenv("MYSQL_HOST"),
-#     "db": os.getenv("MYSQL_DB"),
-# }
-
-from .user import User, UserBase, UserCreate, UserUpdate
+from .user import User, UserBase, UserCreate, UserUpdate, UserPage
 from .token import TokenPayload, Token
-from .bookmark import Bookmark, BookmarkBase, BookmarkCreate, BookmarkUpdate
-from .log import LogBase, LogCreate, Log, LogUpdate
-from .forum import ForumBase, ForumCreate, ForumUpdate, Forum, ForumList, ForumDB
+from .bookmark import Bookmark, BookmarkBase, BookmarkCreate, BookmarkUpdate, BookmarkPage
+from .log import LogBase, LogCreate, Log, LogUpdate, LogPage
+from .forum import ForumBase, ForumCreate, ForumUpdate, Forum, ForumList, ForumDB, ForumUser, ForumUserList, ForumPage
 
