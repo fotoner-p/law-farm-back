@@ -16,13 +16,28 @@ services:
     platform: linux/x86_64
     build: .
     ports:
-      - "8000:80"
+      - '8000:80'
     environment:
       MYSQL_HOST: db
       MYSQL_USER: root
       MYSQL_PASSWORD: lawfarm2021
       MYSQL_DB: lawfarm
 #      ACCESS_TOKEN_SECRET_KEY: lawfarm2021
+    depends_on:
+      - db
+  proxy:
+    image: nginx:latest
+    platform: linux/x86_64
+    ports:
+      - '80:80' # common web
+      - '443:443' # https
+    volumes:
+      - ./proxy/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./proxy/web.conf:/etc/nginx/web.conf:ro
+      - ./proxy/server-https-common.conf:/etc/nginx/server-https-common.conf:ro
+      - /etc/letsencrypt/live/api.fotone.moe:/etc/ssl:ro
+    depends_on:
+      - api
 volumes:
   law-mysql-data:
 
