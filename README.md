@@ -1,7 +1,8 @@
 # law-farm-api
 <pre><code>docker-compose up -d 
 </code></pre>
-[API Docs](http://api.fotone.moe:8000/docs)   
+[API Docs: HTTP](http://api.fotone.moe:8000/docs)
+[API Docs: HTTPS](https://api.fotone.moe/docs)   
 
 # TODO
 
@@ -13,3 +14,7 @@
 - 일부 validation 안 되는 사항들 체크
 - ~~오래된 패키지 최신으로 교체하기~~
 - pipenv와 같은 의존성 관리도구 도입하기
+
+# 업데이트 리스트
+
+- 20.10.26: nginx proxy 추가 (SSL 인증, 하위호환을 위해 당분간 http 8000포트는 열려 있을 예정), 게시판 CRUD 추가와 일부 엔드포인트 CRUD 추가
