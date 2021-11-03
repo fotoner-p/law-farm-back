@@ -42,6 +42,12 @@ def get_bookmark_exist(
 ) -> Any:
     bookmark = crud.bookmark.get_with_owner(db, content_key=key, content_type="article", owner=current_user)
 
+    if not bookmark:
+        raise HTTPException(
+            status_code=404,
+            detail="This bookmark is not exists."
+        )
+
     return bookmark
 
 

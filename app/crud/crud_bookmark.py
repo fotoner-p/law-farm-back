@@ -25,11 +25,10 @@ class CRUDBookmark(CRUDBase[Bookmark, BookmarkCreate, BookmarkUpdate]):
     def get_with_owner(
         self, db: Session, *, content_key: str, content_type: str, owner: models.User
     ) -> Bookmark:
-        return db.query(self.model).filter(
-            self.model.owner_id == owner.id and
-            self.model.content_key == content_key and
-            self.model.content_type == content_type
-        ).first()
+        return db.query(self.model)\
+            .filter(self.model.owner_id == owner.id)\
+            .filter(self.model.content_key == content_key)\
+            .filter(self.model.content_type == content_type).first()
 
     def get_multi_by_owner(
         self, db: Session, *, skip: int = 0, limit: int = 100, owner: models.User
@@ -46,11 +45,10 @@ class CRUDBookmark(CRUDBase[Bookmark, BookmarkCreate, BookmarkUpdate]):
     def is_exist(
         self, db: Session, *, owner: models.User, bookmark: BookmarkCreate
     ) -> bool:
-        result = db.query(self.model).filter(
-            self.model.owner_id == owner.id and
-            self.model.content_type == bookmark.content_type and
-            self.model.content_key == bookmark.content_key
-        ).first()
+        result = db.query(self.model)\
+            .filter(self.model.owner_id == owner.id)\
+            .filter(self.model.content_type == bookmark.content_type)\
+            .filter(self.model.content_key == bookmark.content_key).first()
 
         return True if result else False
 

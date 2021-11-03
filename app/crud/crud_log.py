@@ -25,10 +25,9 @@ class CRUDLog(CRUDBase[ViewLog, LogCreate, LogUpdate]):
     def get_with_owner(
         self, db: Session, *, log_id: int, owner: models.User
     ) -> ViewLog:
-        return db.query(self.model).filter(
-            self.model.owner_id == owner.id and
-            self.model.id == log_id
-        ).first()
+        return db.query(self.model)\
+            .filter(self.model.owner_id == owner.id)\
+            .filter(self.model.id == log_id).first()
 
     def get_multi_by_owner(
         self, db: Session, *, owner: models.User, skip: int = 0, limit: int = 100
