@@ -34,13 +34,26 @@ def read_bookmarks(
     return result
 
 
-@router.post("/me", response_model=schemas.Bookmark)
+@router.get("/article/@{key}", response_model=schemas.Bookmark)
+def get_bookmark_exist(
+        key: str,
+        db: Session = Depends(deps.get_db),
+        current_user: models.User = Depends(deps.get_current_user_or_none)
+) -> Any:
+    bookmark = crud.bookmark.get_with_owner(db, content_key=key, content_type="article", owner=current_user)
+
+    return bookmark
+
+
+@router.post("/article/@{key}", response_model=schemas.Bookmark)
 def add_bookmark(
         *,
         db: Session = Depends(deps.get_db),
         current_user: models.User = Depends(deps.get_current_active_user),
-        bookmark_in: schemas.BookmarkCreate
+        key: str
 ) -> Any:
+    bookmark_in = schemas.BookmarkCreate(content_type="article", content_key=key)
+
     if crud.bookmark.is_exist(db, owner=current_user, bookmark=bookmark_in):
         raise HTTPException(
             status_code=400,
@@ -51,17 +64,17 @@ def add_bookmark(
     return bookmark
 
 
-@router.delete("/me", response_model=schemas.Bookmark)
+@router.delete("/article/@{key}", response_model=schemas.Bookmark)
 def delete_bookmark(
         *,
         db: Session = Depends(deps.get_db),
-        bookmark_id: int,
+        key: str,
         current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
-    bookmark = crud.bookmark.get_with_owner(db, bookmark_id=bookmark_id, owner=current_user)
+    bookmark = crud.bookmark.get_with_owner(db, content_key=key, content_type="article", owner=current_user)
 
     if not bookmark:
         raise HTTPException(status_code=404, detail="Item not found")
 
-    item = crud.bookmark.remove(db=db, obj_id=bookmark_id)
+    item = crud.bookmark.remove(db=db, obj_id=bookmark.id)
     return item

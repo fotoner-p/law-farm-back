@@ -16,13 +16,13 @@ router = APIRouter(
 
 
 @router.get("/@{user_id}", response_model=schemas.LogPage, dependencies=[Depends(deps.get_current_active_superuser)])
-def admin_read_bookmarks_by_id(
+def admin_read_logs_by_id(
         user_id: int,
         skip: int = 0,
         limit: int = 100,
         db: Session = Depends(deps.get_db),
 ) -> Any:
-    logs = crud.log.get_multi_by_user_id(db, user_id=user_id)
+    logs = crud.log.get_multi_by_user_id(db, user_id=user_id, skip=skip, limit=limit)
     count = crud.log.get_count_by_user_id(db, user_id=user_id)
 
     result = {
@@ -37,13 +37,13 @@ def admin_read_bookmarks_by_id(
 
 
 @router.get("/email", response_model=schemas.LogPage, dependencies=[Depends(deps.get_current_active_superuser)])
-def admin_read_bookmarks_by_email(
+def admin_read_logs_by_email(
         email: EmailStr,
         skip: int = 0,
         limit: int = 100,
         db: Session = Depends(deps.get_db),
 ) -> Any:
-    logs = crud.log.get_multi_by_email(db, email=str(email))
+    logs = crud.log.get_multi_by_email(db, email=str(email), skip=skip, limit=limit)
     count = crud.log.get_count_by_email(db, email=str(email))
 
     result = {
@@ -58,13 +58,13 @@ def admin_read_bookmarks_by_email(
 
 
 @router.get("/me", response_model=schemas.LogPage)
-def read_bookmarks(
+def read_logs(
         db: Session = Depends(deps.get_db),
         skip: int = 0,
         limit: int = 100,
         current_user: models.User = Depends(deps.get_current_active_user)
 ) -> Any:
-    logs = crud.log.get_multi_by_owner(db, owner=current_user)
+    logs = crud.log.get_multi_by_owner(db, owner=current_user, skip=skip, limit=limit)
     count = crud.log.get_count_by_user_id(db, user_id=current_user.id)
 
     result = {

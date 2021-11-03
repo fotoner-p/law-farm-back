@@ -31,33 +31,39 @@ class CRUDLog(CRUDBase[ViewLog, LogCreate, LogUpdate]):
         ).first()
 
     def get_multi_by_owner(
-        self, db: Session, *, owner: models.User
+        self, db: Session, *, owner: models.User, skip: int = 0, limit: int = 100
     ) -> List[ViewLog]:
         return (
             db.query(self.model)
             .filter(self.model.owner_id == owner.id)
             .order_by(self.model.created_at.desc())
+            .offset(skip)
+            .limit(limit)
             .all()
         )
 
     def get_multi_by_user_id(
-        self, db: Session, *, user_id: int
+        self, db: Session, *, user_id: int, skip: int = 0, limit: int = 100
     ) -> List[ViewLog]:
         return (
             db.query(self.model)
             .filter(self.model.owner_id == user_id)
             .order_by(self.model.created_at.desc())
+            .offset(skip)
+            .limit(limit)
             .all()
         )
 
     def get_multi_by_email(
-        self, db: Session, *, email: str
+        self, db: Session, *, email: str, skip: int = 0, limit: int = 100
     ) -> List[ViewLog]:
         return (
             db.query(self.model)
             .join(models.User)
             .filter(models.User.email == email)
             .order_by(self.model.created_at.desc())
+            .offset(skip)
+            .limit(limit)
             .all()
         )
 

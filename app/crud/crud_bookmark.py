@@ -23,11 +23,12 @@ class CRUDBookmark(CRUDBase[Bookmark, BookmarkCreate, BookmarkUpdate]):
         return db_obj
 
     def get_with_owner(
-        self, db: Session, *, bookmark_id: int, owner: models.User
+        self, db: Session, *, content_key: str, content_type: str, owner: models.User
     ) -> Bookmark:
         return db.query(self.model).filter(
             self.model.owner_id == owner.id and
-            self.model.id == bookmark_id
+            self.model.content_key == content_key and
+            self.model.content_type == content_type
         ).first()
 
     def get_multi_by_owner(

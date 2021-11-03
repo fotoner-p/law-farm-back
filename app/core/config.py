@@ -22,8 +22,9 @@ class Settings(BaseSettings):
             return v
         raise ValueError(v)
 
-    # JWT 토큰 설정
-    ACCESS_TOKEN_SECRET_KEY: str = secrets.token_urlsafe(32)
+    # JWT 토큰 설정:
+    # TODO 키 고정되게 바꾸
+    ACCESS_TOKEN_SECRET_KEY: str = 'UjIO1gVJJUOGxYivw8Aj-GKkJoOb180hBSzsp9sfbv4'
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
 
     # MySQL DB 세팅 (미리 입력되어 있는 값은 default 값: production 시 교체 권장)
