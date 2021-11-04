@@ -11,7 +11,7 @@ class BookmarkBase(BaseModel):
 
 
 class BookmarkCreate(BookmarkBase):
-    pass
+    text: str
 
 
 class BookmarkUpdate(BookmarkBase):
@@ -21,6 +21,7 @@ class BookmarkUpdate(BookmarkBase):
 class Bookmark(BookmarkBase):
     created_at: datetime.datetime
     id: int
+    text: str
     owner_id: int
     
     class Config:

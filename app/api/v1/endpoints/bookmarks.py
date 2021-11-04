@@ -1,10 +1,14 @@
-from typing import Any, List
+from typing import Any
 
 from fastapi import HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 
 import app.api.dependency as deps
 from app import crud, models, schemas
+from app.lib.data_utils import get_article_dict
+
+# paragraph_dict: dict = get_paragraph_dict()
+article_dict: dict = get_article_dict()
 
 router = APIRouter(
     prefix="/bookmarks",
@@ -58,7 +62,16 @@ def add_bookmark(
         current_user: models.User = Depends(deps.get_current_active_user),
         key: str
 ) -> Any:
-    bookmark_in = schemas.BookmarkCreate(content_type="article", content_key=key)
+
+    try:
+        article = article_dict[key]
+    except:
+        raise HTTPException(
+            status_code=404,
+            detail="This bookmark is not exists."
+        )
+
+    bookmark_in = schemas.BookmarkCreate(content_type="article", content_key=key, text=article["text"])
 
     if crud.bookmark.is_exist(db, owner=current_user, bookmark=bookmark_in):
         raise HTTPException(
