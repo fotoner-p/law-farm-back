@@ -1,8 +1,13 @@
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, Query, HTTPException, Depends
 from typing import Optional, Any
 
 from app.lib.DocumentCore import Core
 from app.lib.data_utils import get_paragraph_dict, get_article_dict
+
+from sqlalchemy.orm import Session
+import app.api.dependency as deps
+
+from app import crud, schemas, models
 
 router = APIRouter(
     prefix="/recommends",
@@ -30,7 +35,7 @@ def reform_result(data: dict, info_dict: dict):
     }
 
 
-def query_wrapper(*, callback, query: str, size: int):
+def query_wrapper(*, callback, query, size: int):
     try:
         return callback(query, size)
     except:
@@ -85,3 +90,72 @@ async def to_article(
 ) -> Any:
     result = query_wrapper(callback=nlp_core.paragraph.article, query=key, size=size)
     return reform_result(result, article_dict)
+
+
+@router.get("/log/article")
+async def get_log_bass_recommends(
+        db: Session = Depends(deps.get_db),
+        current_user: models.User = Depends(deps.get_current_active_user),
+        size: Optional[int] = SIZE_OPTION_DEFAULT,
+        duplicate: Optional[bool] = False
+) -> Any:
+    logs = crud.log.get_multi_by_owner(db, owner=current_user, skip=0, limit=100)
+    documents = [log.content_key for log in logs]
+
+    if len(documents) == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    try:
+        result = nlp_core.article.recommend(documents, size, duplicate)
+    except:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    return reform_result(result, article_dict)
+
+
+@router.get("/bookmark/article")
+async def get_bookmark_bass_recommends(
+        db: Session = Depends(deps.get_db),
+        current_user: models.User = Depends(deps.get_current_active_user),
+        size: Optional[int] = SIZE_OPTION_DEFAULT,
+        duplicate: Optional[bool] = False
+) -> Any:
+    bookmarks = crud.bookmark.get_multi_by_owner(db, owner=current_user, skip=0, limit=100)
+    documents = [bookmark.content_key for bookmark in bookmarks]
+
+    try:
+        result = nlp_core.article.recommend(documents, size, duplicate)
+    except:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    return reform_result(result, article_dict)
+
+
+@router.get("/combined/article")
+async def get_combined_bass_recommends(
+        db: Session = Depends(deps.get_db),
+        current_user: models.User = Depends(deps.get_current_active_user),
+        size: Optional[int] = SIZE_OPTION_DEFAULT,
+        duplicate: Optional[bool] = False
+) -> Any:
+    bookmarks = crud.bookmark.get_multi_by_owner(db, owner=current_user, skip=0, limit=100)
+    bookmark_article = [bookmark.content_key for bookmark in bookmarks]
+
+    logs = crud.log.get_multi_by_owner(db, owner=current_user, skip=0, limit=100)
+    log_article = [log.content_key for log in logs]
+
+    if len(bookmark_article) == 0 or len(log_article) == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    documents = {
+        "log": log_article,
+        "bookmark": bookmark_article
+    }
+
+    try:
+        result = nlp_core.article.combined_recommend(documents, size, duplicate)
+    except:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    return reform_result(result, article_dict)
+

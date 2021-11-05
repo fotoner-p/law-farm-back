@@ -22,3 +22,7 @@ class BaseNlpModel(metaclass=ABCMeta):
     def paragraph(self, key, size):
         pass
 
+    @abstractmethod
+    def recommend(self, documents, size, duplicate):
+        pass
+

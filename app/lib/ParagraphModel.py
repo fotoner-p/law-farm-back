@@ -13,3 +13,5 @@ class ParagraphModel(BaseNlpModel):
         cur_vector = self._word2vec.vectorize_text(text)
         return self._paragraph.similar_by_vector(cur_vector, topn=size)
 
+    def recommend(self, documents, size, duplicate):
+        pass
