@@ -2,7 +2,7 @@ from fastapi import APIRouter, Query, HTTPException, Depends
 from typing import Optional, Any
 
 from app.lib.DocumentCore import Core
-from app.lib.data_utils import get_paragraph_dict, get_article_dict
+from app.lib.data_utils import get_paragraph_dict, get_article_dict, get_statues_dict
 
 from sqlalchemy.orm import Session
 import app.api.dependency as deps
@@ -18,6 +18,7 @@ router = APIRouter(
 nlp_core = Core()
 paragraph_dict: dict = get_paragraph_dict()
 article_dict: dict = get_article_dict()
+statute_dict: dict = get_statues_dict()
 
 SIZE_OPTION_DEFAULT = 25
 
@@ -54,6 +55,28 @@ async def search_query(
         size=size
     )
     return reform_result(result, article_dict if target == "article" else paragraph_dict)
+
+
+@router.get("/statute/inference")
+async def inference_type(
+        query: str,
+        size: Optional[int] = SIZE_OPTION_DEFAULT
+) -> Any:
+    result = query_wrapper(
+        callback=nlp_core.statute.inference_statute,
+        query=query,
+        size=size
+    )
+
+    return {
+        "result": [
+            {
+                "name": val[0],
+                "weight": val[1],
+            } for val in result
+        ],
+        "detail": "ok"
+    }
 
 
 @router.get("/article")
@@ -93,7 +116,7 @@ async def to_article(
 
 
 @router.get("/log/article")
-async def get_log_bass_recommends(
+async def get_log_bass_article_recommends(
         db: Session = Depends(deps.get_db),
         current_user: models.User = Depends(deps.get_current_active_user),
         size: Optional[int] = SIZE_OPTION_DEFAULT,
@@ -113,8 +136,36 @@ async def get_log_bass_recommends(
     return reform_result(result, article_dict)
 
 
+@router.get("/log/statute")
+async def get_log_bass_statute_recommends(
+        db: Session = Depends(deps.get_db),
+        current_user: models.User = Depends(deps.get_current_active_user),
+        size: Optional[int] = SIZE_OPTION_DEFAULT
+) -> Any:
+    logs = crud.log.get_multi_by_owner(db, owner=current_user, skip=0, limit=100)
+    documents = [log.content_key for log in logs]
+
+    if len(documents) == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    try:
+        result = nlp_core.statute.recommend(documents, size, False)
+    except:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    return {
+        "result": [
+            {
+                "name": val[0],
+                "weight": val[1],
+            } for val in result
+        ],
+        "detail": "ok"
+    }
+
+
 @router.get("/bookmark/article")
-async def get_bookmark_bass_recommends(
+async def get_bookmark_bass_article_recommends(
         db: Session = Depends(deps.get_db),
         current_user: models.User = Depends(deps.get_current_active_user),
         size: Optional[int] = SIZE_OPTION_DEFAULT,
@@ -132,7 +183,7 @@ async def get_bookmark_bass_recommends(
 
 
 @router.get("/combined/article")
-async def get_combined_bass_recommends(
+async def get_combined_bass_article_recommends(
         db: Session = Depends(deps.get_db),
         current_user: models.User = Depends(deps.get_current_active_user),
         size: Optional[int] = SIZE_OPTION_DEFAULT,

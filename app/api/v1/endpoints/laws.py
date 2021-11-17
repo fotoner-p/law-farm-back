@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
-from app.lib.data_utils import get_paragraph_dict, get_article_dict
+from app.lib.data_utils import get_paragraph_dict, get_article_dict, get_statues_dict
 import app.api.dependency as deps
 
 
@@ -17,7 +17,9 @@ router = APIRouter(
 
 paragraph_dict: dict = get_paragraph_dict()
 article_dict: dict = get_article_dict()
+statute_dict: dict = get_statues_dict()
 article_names = sorted([key for key in article_dict.keys()])
+statute_names = sorted([key for key in statute_dict.keys()])
 
 
 def reform_result(key: str, info_dict: dict):
@@ -28,6 +30,49 @@ def reform_result(key: str, info_dict: dict):
         }
     except:
         raise HTTPException(status_code=404, detail="Item not found")
+
+
+@router.get("/statute/types")
+def get_statute_types():
+    return {
+        "result": statute_names,
+        "detail": "ok"
+    }
+
+
+@router.get("/statute/@{key}")
+def get_statute(
+        key: str,
+        skip: int = 0,
+        limit: int = 100,
+):
+    try:
+        statute = statute_dict[key]
+    except:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    result = [
+        {
+            "fullname": article["fullname"],
+            "article": article["article"],
+            "statute": article["statute"],
+            "count": len(article["paragraphs"]) if "paragraphs" in article.keys() else 1
+        } for article in statute["articles"]
+    ]
+    result.sort(key=lambda x: x["article"])
+    result.sort(key=lambda x: len(x["article"]))
+    count = len(result)
+
+    result = result[skip: skip + limit]
+
+    return {
+        "result": result,
+        "detail": "ok",
+        "count": count,
+        "size": len(result),
+        "skip": skip,
+        "limit": limit,
+    }
 
 
 @router.get("/article/@{key}")
@@ -44,7 +89,8 @@ def get_article(
     if current_user:
         log = schemas.LogCreate(
             content_key=key,
-            content_type='article'
+            content_type='article',
+            text=article_dict[key]["text"]
         )
         res = crud.log.create_with_owner(db, obj_in=log, owner_id=current_user.id)
     return article
@@ -64,7 +110,8 @@ def get_paragraph(
     if current_user:
         log = schemas.LogCreate(
             content_key=key,
-            content_type='paragraph'
+            content_type='paragraph',
+            text=paragraph_dict[key]["text"]
         )
         res = crud.log.create_with_owner(db, obj_in=log, owner_id=current_user.id)
     return paragraph

@@ -47,6 +47,7 @@ class ViewLog(Base):
     id = Column(Integer, primary_key=True, index=True)
     content_type = Column(String(15), nullable=False)
     content_key = Column(String(99), nullable=False)
+    text = Column(String(99), nullable=False)
     owner_id = Column(Integer, ForeignKey("users.id"))
     created_at = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
 

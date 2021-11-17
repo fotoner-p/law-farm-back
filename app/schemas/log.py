@@ -10,6 +10,7 @@ class LogBase(BaseModel):
 
 
 class LogCreate(LogBase):
+    text: str
     pass
 
 
@@ -20,6 +21,7 @@ class LogUpdate(LogBase):
 class Log(LogBase):
     created_at: datetime.datetime
     id: int
+    text: str
 
     class Config:
         orm_mode = True

@@ -33,6 +33,19 @@ def get_article_dict():
     return article_data
 
 
+def get_statues_dict():
+    with open('./app/build/all_statutes.json', 'r') as f:
+        statute_data: dict = json.load(f)
+
+    statute_data = {
+        statute['fullname']: {
+            'articles': statute['articles'] if 'articles' in statute else [],
+            'text': statute['text'],
+        } for statute in statute_data
+    }
+
+    return statute_data
+
 # def word_tagging(content: list):
 #     re_content = []
 #     for item in content:

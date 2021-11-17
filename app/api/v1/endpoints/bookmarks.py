@@ -97,3 +97,4 @@ def delete_bookmark(
 
     item = crud.bookmark.remove(db=db, obj_id=bookmark.id)
     return item
+

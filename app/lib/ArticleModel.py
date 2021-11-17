@@ -42,6 +42,10 @@ class ArticleModel(BaseNlpModel):
         cur_vector = self._article.get_vector(key)
         return self._paragraph.similar_by_vector(cur_vector, topn=size)
 
+    def statute(self, key, size):
+        cur_vector = self._article.get_vector(key)
+        return self._statute.similar_by_vector(cur_vector, topn=size)
+
     def search(self, text, size):
         cur_vector = self._word2vec.vectorize_text(text)
         return self._article.similar_by_vector(cur_vector, topn=size)
@@ -60,7 +64,7 @@ class ArticleModel(BaseNlpModel):
         log2vec = self.__documents2vec(documents["log"])
         bookmark2vec = self.__documents2vec(documents["bookmark"])
 
-        doc2vec = bookmark2vec * 0.7 + log2vec * 0.3
+        doc2vec = bookmark2vec * 0.5 + log2vec * 0.5
         documents = {doc for doc in documents["log"] + documents["bookmark"]}
 
         if not duplicate:

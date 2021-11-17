@@ -48,7 +48,7 @@ def post_forum(
         db: Session = Depends(deps.get_db),
         current_user: models.User = Depends(deps.get_current_active_user),
         title: str = Body(..., min_length=1),
-        forum_type: str = Body(..., regex="(교통사고|층간소음|창업|퇴직금|가족|학교폭력)"),
+        forum_type: str = Body(..., min_length=1),
         main: str = Body(..., min_length=1),
         secret: bool = Body(False)
 ) -> Any:
@@ -65,7 +65,7 @@ def update_forum(
         forum_id: int,
         current_user: models.User = Depends(deps.get_current_active_user),
         title: str = Body(None, min_length=1),
-        forum_type: str = Body(None, regex="(교통사고|층간소음|창업|퇴직금|가족|학교폭력)"),
+        forum_type: str = Body(None, min_length=1),
         main: str = Body(None, min_length=1),
 ) -> Any:
     forum = crud.forum.get(db, obj_id=forum_id)
