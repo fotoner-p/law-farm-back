@@ -1,6 +1,7 @@
 from typing import Union, Dict, Any
 
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from fastapi.encoders import jsonable_encoder
 
@@ -18,6 +19,25 @@ class CRUDForum(CRUDBase[Forum, ForumCreate, ForumUpdate]):
             self, db: Session, *, skip: int = 0, limit: int = 100
     ) -> Any:
         return db.query(self.model, User).join(User, User.id == self.model.owner_id).order_by(self.model.created_at.desc()).offset(skip).limit(limit).all()
+
+    def get_multi_options(
+            self, db: Session, *, skip: int = 0, limit: int = 100, forum_type: str = None, sort_type: str = None
+    ) -> Any:
+        curQuery = db.query(self.model, User).join(User, User.id == self.model.owner_id)
+
+        if forum_type != "전체":
+            curQuery = curQuery.filter(self.model.forum_type == forum_type)
+
+        if sort_type == "like":
+            curQuery = curQuery.order_by(self.model.like_count.desc())
+        elif sort_type == "view":
+            curQuery = curQuery.order_by(self.model.view_count.desc())
+        elif sort_type == "comment":
+            curQuery = curQuery.filter(self.model.comment_count == 0).order_by(self.model.created_at.desc())
+        else:
+            curQuery = curQuery.order_by(self.model.created_at.desc())
+
+        return curQuery.offset(skip).limit(limit).all()
 
     def create_with_owner(self, db: Session, *, obj_in: ForumCreate, owner_id: int) -> Forum:
 
@@ -46,8 +66,49 @@ class CRUDForum(CRUDBase[Forum, ForumCreate, ForumUpdate]):
 
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
+    def update_count(self, db: Session, *, forum_id: int):
+        res = db.query(self.model).filter(self.model.id == forum_id).update({"view_count": self.model.view_count + 1})
+        db.commit()
+        return res
+
+    def update_like_add(self, db: Session, *, forum_id: int):
+        res = db.query(self.model).filter(self.model.id == forum_id).update({"like_count": self.model.like_count + 1})
+        db.commit()
+        return res
+
+    def update_like_delete(self, db: Session, *, forum_id: int):
+        res = db.query(self.model).filter(self.model.id == forum_id).update({"like_count": self.model.like_count - 1})
+        db.commit()
+        return res
+
+    def update_comment_add(self, db: Session, *, forum_id: int):
+        res = db.query(self.model).filter(self.model.id == forum_id).update({"comment_count": self.model.comment_count + 1})
+        db.commit()
+        return res
+
+    def update_comment_delete(self, db: Session, *, forum_id: int):
+        res = db.query(self.model).filter(self.model.id == forum_id).update({"comment_count": self.model.comment_count - 1})
+        db.commit()
+        return res
+
     def get_count(self, db: Session) -> Any:
-        return db.query(self.model.id).count()
+        res = db.query(self.model.id).count()
+        db.commit()
+        return res
+
+    def get_option_count(self, db: Session, forum_type: str = None, sort_type: str = None) -> Any:
+        curQuery = db.query(self.model.id)
+
+        if forum_type != "전체":
+            curQuery = curQuery.filter(self.model.forum_type == forum_type)
+
+        if sort_type == "comment":
+            curQuery = curQuery.filter(self.model.comment_count == 0)
+
+        return curQuery.count()
+
+    def get_type_count(self, db: Session) -> Any:
+        return db.query(self.model.forum_type, func.count(self.model.forum_type)).group_by(self.model.forum_type).all()
 
 
 forum = CRUDForum(Forum)

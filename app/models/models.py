@@ -96,7 +96,6 @@ class ForumLike(Base):
     forum_id = Column(Integer, ForeignKey("forum.id"))
     owner_id = Column(Integer, ForeignKey("users.id"))
 
-    is_like = Column(Boolean(), nullable=False, default=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
 
     owner = relationship("User", back_populates="forum_likes")
@@ -111,6 +110,7 @@ class ForumAnswer(Base):
     owner_id = Column(Integer, ForeignKey("users.id"))
     main = Column(Text(4294000000), nullable=False, default='')
     like_count = Column(Integer, nullable=False, default=0)
+    secret = Column(Boolean(), nullable=False, default=False)
 
     created_at = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
 
@@ -128,7 +128,6 @@ class ForumAnswerLike(Base):
     answer_id = Column(Integer, ForeignKey("forum_answer.id"))
     owner_id = Column(Integer, ForeignKey("users.id"))
 
-    is_like = Column(Boolean(), nullable=False, default=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
 
     owner = relationship("User", back_populates="forum_answer_likes")
@@ -142,6 +141,7 @@ class ForumAnswerComment(Base):
     answer_id = Column(Integer, ForeignKey("forum_answer.id"))
     owner_id = Column(Integer, ForeignKey("users.id"))
     main = Column(Text(), nullable=False, default='')
+    secret = Column(Boolean(), nullable=False, default=False)
 
     created_at = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
 

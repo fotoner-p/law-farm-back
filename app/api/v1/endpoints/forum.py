@@ -1,6 +1,6 @@
-from typing import Any, List, Union
+from typing import Any, List, Union, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Depends, HTTPException, Body, Query
 from sqlalchemy.orm import Session
 
 import app.api.dependency as deps
@@ -20,16 +20,18 @@ def raw_forum_reform(raw):
     return res_forum
 
 
-@router.get("/", response_model=schemas.ForumPage)
+@router.get("", response_model=schemas.ForumPage)
 def read_forums_multi(
         db: Session = Depends(deps.get_db),
         skip: int = 0,
         limit: int = 100,
+        forum_type: Optional[str] = Query(None, regex="(전체|교통사고|층간소음|창업|퇴직금|가족|학교폭력|기타)"),
+        sort_type: Optional[str] = Query(None, regex="(date|like|view|comment)")
 ) -> Any:
-    forums = crud.forum.get_multi(db, skip=skip, limit=limit)
+    forums = crud.forum.get_multi_options(db, skip=skip, limit=limit, forum_type=forum_type, sort_type=sort_type)
     parsed_forums = [raw_forum_reform(forum) for forum in forums]
 
-    count = crud.forum.get_count(db)
+    count = crud.forum.get_option_count(db, forum_type=forum_type, sort_type=sort_type)
 
     result = {
         "data": parsed_forums,
@@ -42,13 +44,13 @@ def read_forums_multi(
     return result
 
 
-@router.post("/", response_model=schemas.Forum)
+@router.post("", response_model=schemas.Forum)
 def post_forum(
         *,
         db: Session = Depends(deps.get_db),
         current_user: models.User = Depends(deps.get_current_active_user),
         title: str = Body(..., min_length=1),
-        forum_type: str = Body(..., min_length=1),
+        forum_type: str = Body(..., regex="(교통사고|층간소음|창업|퇴직금|가족|학교폭력|기타)"),
         main: str = Body(..., min_length=1),
         secret: bool = Body(False)
 ) -> Any:
@@ -65,7 +67,7 @@ def update_forum(
         forum_id: int,
         current_user: models.User = Depends(deps.get_current_active_user),
         title: str = Body(None, min_length=1),
-        forum_type: str = Body(None, min_length=1),
+        forum_type: str = Body(None, regex="(교통사고|층간소음|창업|퇴직금|가족|학교폭력|기타)"),
         main: str = Body(None, min_length=1),
 ) -> Any:
     forum = crud.forum.get(db, obj_id=forum_id)
@@ -110,14 +112,27 @@ def delete_forum(
     return forum
 
 
-@router.get("/@{forum_id}", response_model=schemas.ForumUser)
+@router.get("/@{forum_id}", response_model=schemas.ForumUser, dependencies=[Depends(deps.get_current_active_user)])
 def read_forum(
         forum_id: int,
-        db: Session = Depends(deps.get_db)
+        db: Session = Depends(deps.get_db),
+        current_user: models.User = Depends(deps.get_current_user_or_none)
 ) -> Any:
     forum = crud.forum.get(db, obj_id=forum_id)
     if not forum:
         raise HTTPException(status_code=404, detail="Item not found")
+
+    if current_user:
+        res = crud.forumCount.get_with_owner_and_forum(db, forum_id=forum_id, owner_id=current_user.id)
+
+        if not res:
+            count = schemas.ForumCountCreate(
+                owner_id=current_user.id,
+                forum_id=forum_id
+            )
+            res = crud.forumCount.create(db, obj_in=count)
+            res = crud.forum.update_count(db, forum_id=forum_id)
+            print(res)
 
     res_forum = raw_forum_reform(forum)
 
