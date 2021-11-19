@@ -6,7 +6,7 @@ from sqlalchemy import func
 from fastapi.encoders import jsonable_encoder
 
 from app.crud.base import CRUDBase
-from app.models import Forum, User
+from app.models import Forum, User, ForumLike
 from app.schemas.forum import ForumCreate, ForumUpdate
 from app.lib.Parse import parse_md
 
@@ -39,8 +39,15 @@ class CRUDForum(CRUDBase[Forum, ForumCreate, ForumUpdate]):
 
         return curQuery.offset(skip).limit(limit).all()
 
-    def create_with_owner(self, db: Session, *, obj_in: ForumCreate, owner_id: int) -> Forum:
+    def get_multi_liked(
+            self, db: Session, *, skip: int = 0, limit: int = 100, owner_id: int
+    ) -> Any:
+        return db.query(self.model, User)\
+            .join(User, User.id == self.model.owner_id)\
+            .join(ForumLike, ForumLike.forum_id == self.model.id)\
+            .filter(ForumLike.owner_id == owner_id).offset(skip).limit(limit).all()
 
+    def create_with_owner(self, db: Session, *, obj_in: ForumCreate, owner_id: int) -> Forum:
         obj_in_data = jsonable_encoder(obj_in)
         parsed_main = parse_md(obj_in.main)
 
@@ -106,6 +113,9 @@ class CRUDForum(CRUDBase[Forum, ForumCreate, ForumUpdate]):
             curQuery = curQuery.filter(self.model.comment_count == 0)
 
         return curQuery.count()
+
+    def get_liked_count(self, db: Session, owner_id: int) -> Any:
+        return db.query(self.model.id).join(ForumLike, ForumLike.forum_id == self.model.id).filter(ForumLike.owner_id == owner_id).count()
 
     def get_type_count(self, db: Session) -> Any:
         return db.query(self.model.forum_type, func.count(self.model.forum_type)).group_by(self.model.forum_type).all()

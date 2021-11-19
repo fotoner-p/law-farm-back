@@ -4,4 +4,4 @@ from .bookmark import Bookmark, BookmarkBase, BookmarkCreate, BookmarkUpdate, Bo
 from .log import LogBase, LogCreate, Log, LogUpdate, LogPage
 from .forum import ForumBase, ForumCreate, ForumUpdate, Forum, ForumList, ForumDB, ForumUser, ForumUserList, ForumPage
 from .forum_count import ForumCountBase, ForumCountCreate, ForumCountUpdate
-from .forum_like import ForumLikeBase, ForumLikeCreate, ForumLikeUpdate
+from .forum_like import ForumLikeBase, ForumLikeCreate, ForumLikeUpdate, ForumLikeDB, ForumLike

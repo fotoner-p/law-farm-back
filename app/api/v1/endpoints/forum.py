@@ -1,4 +1,4 @@
-from typing import Any, List, Union, Optional
+from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Body, Query
 from sqlalchemy.orm import Session
@@ -60,6 +60,29 @@ def post_forum(
     return forum
 
 
+@router.get("/liked", response_model=schemas.ForumPage)
+def read_forums_multi(
+        db: Session = Depends(deps.get_db),
+        skip: int = 0,
+        limit: int = 100,
+        current_user: models.User = Depends(deps.get_current_active_user),
+) -> Any:
+    forums = crud.forum.get_multi_liked(db, skip=skip, limit=limit, owner_id=current_user.id)
+    parsed_forums = [raw_forum_reform(forum) for forum in forums]
+
+    count = crud.forum.get_liked_count(db, owner_id=current_user.id)
+
+    result = {
+        "data": parsed_forums,
+        "count": count,
+        "size": len(parsed_forums),
+        "skip": skip,
+        "limit": limit
+    }
+
+    return result
+
+
 @router.put("/@{forum_id}", response_model=schemas.Forum)
 def update_forum(
         *,
@@ -112,29 +135,72 @@ def delete_forum(
     return forum
 
 
-@router.get("/@{forum_id}", response_model=schemas.ForumUser, dependencies=[Depends(deps.get_current_active_user)])
+@router.get("/@{forum_id}", response_model=schemas.ForumUser)
 def read_forum(
         forum_id: int,
         db: Session = Depends(deps.get_db),
-        current_user: models.User = Depends(deps.get_current_user_or_none)
+        current_user: models.User = Depends(deps.get_current_active_user)
 ) -> Any:
     forum = crud.forum.get(db, obj_id=forum_id)
     if not forum:
         raise HTTPException(status_code=404, detail="Item not found")
 
-    if current_user:
-        res = crud.forumCount.get_with_owner_and_forum(db, forum_id=forum_id, owner_id=current_user.id)
+    res = crud.forumCount.get_with_owner_and_forum(db, forum_id=forum_id, owner_id=current_user.id)
 
-        if not res:
-            count = schemas.ForumCountCreate(
-                owner_id=current_user.id,
-                forum_id=forum_id
-            )
-            res = crud.forumCount.create(db, obj_in=count)
-            res = crud.forum.update_count(db, forum_id=forum_id)
-            print(res)
+    if not res:
+        count = schemas.ForumCountCreate(
+            owner_id=current_user.id,
+            forum_id=forum_id
+        )
+        crud.forumCount.create(db, obj_in=count)
+        crud.forum.update_count(db, forum_id=forum_id)
 
     res_forum = raw_forum_reform(forum)
 
     return res_forum
+
+
+@router.get("/@{forum_id}/like", response_model=schemas.ForumLike)
+def read_forum_like(
+        forum_id: int,
+        db: Session = Depends(deps.get_db),
+        current_user: models.User = Depends(deps.get_current_active_user)
+) -> Any:
+    return crud.forumLike.get_with_owner_and_forum(db, forum_id=forum_id, owner_id=current_user.id)
+
+
+@router.post("/@{forum_id}/like", response_model=schemas.ForumLike)
+def add_forum_like(
+        forum_id: int,
+        db: Session = Depends(deps.get_db),
+        current_user: models.User = Depends(deps.get_current_active_user)
+) -> Any:
+    if crud.forumLike.get_with_owner_and_forum(db, forum_id=forum_id, owner_id=current_user.id):
+        raise HTTPException(
+            status_code=400,
+            detail="This bookmark already exists."
+        )
+
+    like = schemas.ForumLikeCreate(
+        owner_id=current_user.id,
+        forum_id=forum_id
+    )
+
+    res = crud.forumLike.create(db, obj_in=like)
+    crud.forum.update_like_add(db, forum_id=forum_id)
+    return res
+
+
+@router.delete("/@{forum_id}/like", response_model=schemas.ForumLike)
+def remove_forum_like(
+        forum_id: int,
+        db: Session = Depends(deps.get_db),
+        current_user: models.User = Depends(deps.get_current_active_user)
+) -> Any:
+    if not crud.forumLike.get_with_owner_and_forum(db, forum_id=forum_id, owner_id=current_user.id):
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    like = crud.forumLike.remove_with_owner_and_forum(db, forum_id=forum_id, owner_id=current_user.id)
+    crud.forum.update_like_delete(db, forum_id=forum_id)
+    return like
 
