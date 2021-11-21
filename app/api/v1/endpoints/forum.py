@@ -204,3 +204,31 @@ def remove_forum_like(
     crud.forum.update_like_delete(db, forum_id=forum_id)
     return like
 
+
+# @router.get("/@{forum_id}/comment")
+# def get_forum_comment(
+#         forum_id: int,
+#         db: Session = Depends(deps.get_db),
+#         current_user: models.User = Depends(deps.get_current_active_user)
+# ) -> Any:
+#     pass
+#
+#
+# @router.post("/@{forum_id}/comment")
+# def create_forum_comment(
+#         forum_id: int,
+#         db: Session = Depends(deps.get_db),
+#         current_user: models.User = Depends(deps.get_current_active_user)
+# ) -> Any:
+#     pass
+#
+#
+# @router.delete("/@{forum_id}/comment")
+# def delete_forum_comment(
+#         forum_id: int,
+#         db: Session = Depends(deps.get_db),
+#         current_user: models.User = Depends(deps.get_current_active_user)
+# ) -> Any:
+#     pass
+#
+#

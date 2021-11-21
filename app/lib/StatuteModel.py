@@ -55,6 +55,13 @@ class StatuteModel(BaseNlpModel):
 
         return self._statute.similar_by_vector(doc2vec, topn=size)
 
+    def combined_recommend(self, documents, size, duplicate):
+        log2vec = self.__documents2vec(documents["log"])
+        bookmark2vec = self.__documents2vec(documents["bookmark"])
+
+        doc2vec = bookmark2vec * 0.5 + log2vec * 0.5
+        return self._statute.similar_by_vector(doc2vec, topn=size)
+
     def inference_statute(self, text, size):
         cur_vector = self._word2vec.vectorize_text(text)
         return self._statute.similar_by_vector(cur_vector, topn=size)

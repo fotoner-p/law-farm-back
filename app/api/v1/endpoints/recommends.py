@@ -7,7 +7,8 @@ from app.lib.data_utils import get_paragraph_dict, get_article_dict, get_statues
 from sqlalchemy.orm import Session
 import app.api.dependency as deps
 
-from app import crud, schemas, models
+from app import crud, models
+from app.lib.Parse import parse_md
 
 router = APIRouter(
     prefix="/recommends",
@@ -97,6 +98,23 @@ async def relate_paragraph(
     return reform_result(result, paragraph_dict)
 
 
+@router.get("/article/statute")
+async def to_statute(
+        key: str,
+        size: Optional[int] = SIZE_OPTION_DEFAULT
+) -> Any:
+    result = query_wrapper(callback=nlp_core.article.statute, query=key, size=size)
+    return {
+        "result": [
+            {
+                "name": val[0],
+                "weight": val[1],
+            } for val in result
+        ],
+        "detail": "ok"
+    }
+
+
 @router.get("/article/paragraph")
 async def to_paragraph(
         key: str,
@@ -182,6 +200,67 @@ async def get_bookmark_bass_article_recommends(
     return reform_result(result, article_dict)
 
 
+@router.get("/bookmark/statute")
+async def get_bookmark_bass_statute_recommends(
+        db: Session = Depends(deps.get_db),
+        current_user: models.User = Depends(deps.get_current_active_user),
+        size: Optional[int] = SIZE_OPTION_DEFAULT
+) -> Any:
+    bookmarks = crud.bookmark.get_multi_by_owner(db, owner=current_user, skip=0, limit=100)
+    documents = [bookmark.content_key for bookmark in bookmarks]
+
+    try:
+        result = nlp_core.statute.recommend(documents, size, False)
+    except:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    return {
+        "result": [
+            {
+                "name": val[0],
+                "weight": val[1],
+            } for val in result
+        ],
+        "detail": "ok"
+    }
+
+
+@router.get("/combined/statute")
+async def get_combined_bass_statute_recommends(
+        db: Session = Depends(deps.get_db),
+        current_user: models.User = Depends(deps.get_current_active_user),
+        size: Optional[int] = SIZE_OPTION_DEFAULT,
+) -> Any:
+    bookmarks = crud.bookmark.get_multi_by_owner(db, owner=current_user, skip=0, limit=100)
+    bookmark_article = [bookmark.content_key for bookmark in bookmarks]
+
+    logs = crud.log.get_multi_by_owner(db, owner=current_user, skip=0, limit=100)
+    log_article = [log.content_key for log in logs]
+
+    if len(bookmark_article) == 0 or len(log_article) == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    documents = {
+        "log": log_article,
+        "bookmark": bookmark_article
+    }
+
+    try:
+        result = nlp_core.statute.combined_recommend(documents, size, False)
+    except:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    return {
+        "result": [
+            {
+                "name": val[0],
+                "weight": val[1],
+            } for val in result
+        ],
+        "detail": "ok"
+    }
+
+
 @router.get("/combined/article")
 async def get_combined_bass_article_recommends(
         db: Session = Depends(deps.get_db),
@@ -210,3 +289,54 @@ async def get_combined_bass_article_recommends(
 
     return reform_result(result, article_dict)
 
+
+@router.get("/forum/@{forum_id}/statute", dependencies=[Depends(deps.get_current_active_user)])
+async def get_forum_statutes(
+        forum_id: int,
+        size: Optional[int] = SIZE_OPTION_DEFAULT,
+        db: Session = Depends(deps.get_db),
+) -> Any:
+    forum = crud.forum.get(db, obj_id=forum_id)
+
+    if not forum:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    parsed_main = parse_md(forum["Forum"].main)
+
+    result = query_wrapper(
+        callback=nlp_core.statute.inference_statute,
+        query=parsed_main,
+        size=size
+    )
+
+    return {
+        "result": [
+            {
+                "name": val[0],
+                "weight": val[1],
+            } for val in result
+        ],
+        "detail": "ok"
+    }
+
+
+@router.get("/forum/@{forum_id}/article", dependencies=[Depends(deps.get_current_active_user)])
+async def get_forum_article(
+        forum_id: int,
+        size: Optional[int] = SIZE_OPTION_DEFAULT,
+        db: Session = Depends(deps.get_db),
+) -> Any:
+    forum = crud.forum.get(db, obj_id=forum_id)
+
+    if not forum:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    parsed_main = parse_md(forum["Forum"].main)
+
+    result = query_wrapper(
+        callback=nlp_core.article.search,
+        query=parsed_main,
+        size=size
+    )
+
+    return reform_result(result, article_dict)

@@ -24,8 +24,13 @@ statute_names = sorted([key for key in statute_dict.keys()])
 
 def reform_result(key: str, info_dict: dict):
     try:
+        curResult = info_dict[key]
+        if curResult["paragraphs"]:
+            paragraphs = sorted(curResult["paragraphs"], key=lambda x: len(x["paragraph"]))
+            curResult["paragraphs"] = paragraphs
+
         return {
-            "result": info_dict[key],
+            "result": curResult,
             "detail": "ok"
         }
     except:
@@ -46,6 +51,7 @@ def get_statute(
         skip: int = 0,
         limit: int = 100,
 ):
+    # print(limit)
     try:
         statute = statute_dict[key]
     except:
@@ -55,6 +61,7 @@ def get_statute(
         {
             "fullname": article["fullname"],
             "article": article["article"],
+            "text": article["text"] if article["text"] else "",
             "statute": article["statute"],
             "count": len(article["paragraphs"]) if "paragraphs" in article.keys() else 1
         } for article in statute["articles"]
@@ -90,7 +97,7 @@ def get_article(
         log = schemas.LogCreate(
             content_key=key,
             content_type='article',
-            text=article_dict[key]["text"]
+            text=article_dict[key]["text"][:99]
         )
         res = crud.log.create_with_owner(db, obj_in=log, owner_id=current_user.id)
     return article
