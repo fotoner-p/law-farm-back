@@ -36,6 +36,14 @@ def admin_read_users(
     return result
 
 
+@router.get("/@{user_id}", response_model=schemas.User, dependencies=[Depends(deps.get_current_active_user)])
+def admin_read_users(
+        user_id: int,
+        db: Session = Depends(deps.get_db),
+) -> Any:
+    return crud.user.get(db, obj_id=user_id)
+
+
 @router.post("/", response_model=schemas.User)
 def create_user(
         *,
