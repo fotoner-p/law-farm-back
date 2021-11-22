@@ -47,6 +47,12 @@ class StatuteModel(BaseNlpModel):
         cur_vector = self._word2vec.vectorize_text(text)
         return self._paragraph.similar_by_vector(cur_vector, topn=size)
 
+    def forum(self, document, size):
+        main_vector = self._word2vec.vectorize_text(document["main"])
+        title_vector = self._word2vec.vectorize_text(document["title"])
+        cur_vector = title_vector * 0.5 + main_vector * 0.5
+        return self._statute.similar_by_vector(cur_vector, topn=size)
+
     def statute(self, key, size):
         return self._statute.similar_by_key(key, topn=size)
 

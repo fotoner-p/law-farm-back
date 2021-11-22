@@ -129,7 +129,7 @@ def delete_forum(
 
     if not forum:
         raise HTTPException(status_code=404, detail="Item not found")
-    if crud.user.is_active(current_user) and (forum.owner_id != current_user.id):
+    if crud.user.is_active(current_user) and (forum["Forum"].owner_id != current_user.id):
         raise HTTPException(status_code=400, detail="Not enough permissions")
 
     forum = crud.forum.remove(db, obj_id=forum_id)

@@ -302,10 +302,11 @@ async def get_forum_statutes(
         raise HTTPException(status_code=404, detail="Item not found")
 
     parsed_main = parse_md(forum["Forum"].main)
+    title = forum["Forum"].title
 
     result = query_wrapper(
-        callback=nlp_core.statute.inference_statute,
-        query=parsed_main,
+        callback=nlp_core.statute.forum,
+        query={"main": parsed_main, "title": title},
         size=size
     )
 
@@ -332,10 +333,11 @@ async def get_forum_article(
         raise HTTPException(status_code=404, detail="Item not found")
 
     parsed_main = parse_md(forum["Forum"].main)
+    title = forum["Forum"].title
 
     result = query_wrapper(
-        callback=nlp_core.article.search,
-        query=parsed_main,
+        callback=nlp_core.article.forum,
+        query={"main": parsed_main, "title": title},
         size=size
     )
 
