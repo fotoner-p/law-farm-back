@@ -5,3 +5,4 @@ from .log import LogBase, LogCreate, Log, LogUpdate, LogPage
 from .forum import ForumBase, ForumCreate, ForumUpdate, Forum, ForumList, ForumDB, ForumUser, ForumUserList, ForumPage
 from .forum_count import ForumCountBase, ForumCountCreate, ForumCountUpdate
 from .forum_like import ForumLikeBase, ForumLikeCreate, ForumLikeUpdate, ForumLikeDB, ForumLike
+from .forum_answer import ForumAnswerCreate, ForumAnswerUpdate, ForumAnswerDbBase, ForumAnswer, ForumAnswerDB, ForumAnswerBase, ForumAnswerPage, ForumAnswerUser

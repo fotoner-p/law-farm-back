@@ -148,4 +148,3 @@ class ForumAnswerComment(Base):
     owner = relationship("User", back_populates="forum_answer_comments")
     answer_owner = relationship("ForumAnswer", back_populates="answer_comments")
 
-

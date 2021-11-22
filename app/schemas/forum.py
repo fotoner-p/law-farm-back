@@ -4,6 +4,7 @@ from typing import Optional, List
 from pydantic import BaseModel
 from .user import User
 
+
 class ForumBase(BaseModel):
     pass
 
@@ -34,7 +35,6 @@ class ForumDB(ForumDbBase):
     like_count: int
     comment_count: int
     view_count: int
-
 
     class Config:
         orm_mode = True

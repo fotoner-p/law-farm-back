@@ -29,3 +29,6 @@ class Word2VecWrapper:
                     doc2vec = doc2vec + self.__word2vec.wv.get_vector(word)
 
         return doc2vec / count if doc2vec is not None else None
+
+    def keyword(self, vector, size):
+        return self.__word2vec.wv.similar_by_vector(vector, size)

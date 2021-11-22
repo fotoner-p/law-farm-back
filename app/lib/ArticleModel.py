@@ -50,6 +50,10 @@ class ArticleModel(BaseNlpModel):
         cur_vector = self._word2vec.vectorize_text(text)
         return self._article.similar_by_vector(cur_vector, topn=size)
 
+    def keyword(self, key, size):
+        cur_vector = self._article.get_vector(key)
+        return self._word2vec.keyword(cur_vector, size)
+
     def recommend(self, documents, size, duplicate):
         doc2vec = self.__documents2vec(documents)
         documents = {doc for doc in documents}

@@ -50,6 +50,10 @@ class StatuteModel(BaseNlpModel):
     def statute(self, key, size):
         return self._statute.similar_by_key(key, topn=size)
 
+    def keyword(self, key, size):
+        cur_vector = self._statute.get_vector(key)
+        return self._word2vec.keyword(cur_vector, size)
+
     def recommend(self, documents, size, duplicate):
         doc2vec = self.__documents2vec(documents)
 

@@ -13,8 +13,10 @@ router = APIRouter(
 )
 
 
+row2dict = lambda r: {c.name: str(getattr(r, c.name)) for c in r.__table__.columns}
+
+
 def raw_forum_reform(raw):
-    row2dict = lambda r: {c.name: str(getattr(r, c.name)) for c in r.__table__.columns}
     res_forum = {**row2dict(raw["Forum"]), "user": raw["User"]}
 
     return res_forum
@@ -205,30 +207,45 @@ def remove_forum_like(
     return like
 
 
-# @router.get("/@{forum_id}/comment")
-# def get_forum_comment(
-#         forum_id: int,
-#         db: Session = Depends(deps.get_db),
-#         current_user: models.User = Depends(deps.get_current_active_user)
-# ) -> Any:
-#     pass
-#
-#
-# @router.post("/@{forum_id}/comment")
-# def create_forum_comment(
-#         forum_id: int,
-#         db: Session = Depends(deps.get_db),
-#         current_user: models.User = Depends(deps.get_current_active_user)
-# ) -> Any:
-#     pass
-#
-#
-# @router.delete("/@{forum_id}/comment")
-# def delete_forum_comment(
-#         forum_id: int,
-#         db: Session = Depends(deps.get_db),
-#         current_user: models.User = Depends(deps.get_current_active_user)
-# ) -> Any:
-#     pass
-#
-#
+@router.get("/@{forum_id}/comment", response_model=schemas.ForumAnswerPage, dependencies=[Depends(deps.get_current_active_user)])
+def get_forum_comment(
+        forum_id: int,
+        db: Session = Depends(deps.get_db),
+) -> Any:
+    answers = crud.forumAnswer.get_multi_by_forum(db, forum_id=forum_id)
+    print(answers)
+    res_answers = [{**row2dict(answer["ForumAnswer"]), "user": answer["User"]} for answer in answers]
+
+    return {
+        "data": res_answers
+    }
+
+
+@router.post("/@{forum_id}/comment", response_model=schemas.ForumAnswer)
+def create_forum_comment(
+        *,
+        db: Session = Depends(deps.get_db),
+        current_user: models.User = Depends(deps.get_current_active_user),
+        forum_id: int,
+        main: str = Body(..., min_length=1, embed=True),
+) -> Any:
+    forum_in = schemas.ForumAnswerCreate(main=main, forum_id=forum_id, owner_id=current_user.id)
+    crud.forum.update_comment_add(db, forum_id=forum_id)
+    return crud.forumAnswer.create(db, obj_in=forum_in)
+
+
+@router.delete("/@{forum_id}/comment/@{comment_id}", response_model=schemas.ForumAnswer)
+def delete_forum_comment(
+        forum_id: int,
+        comment_id: int,
+        db: Session = Depends(deps.get_db),
+        current_user: models.User = Depends(deps.get_current_active_user)
+) -> Any:
+    res = crud.forumAnswer.remove_with_owner_and_id(db, obj_id=comment_id, forum_id=forum_id, owner_id=current_user.id)
+
+    if not res:
+        raise HTTPException(status_code=404, detail="Item not found")
+    else:
+        crud.forum.update_comment_delete(db, forum_id=forum_id)
+        return res
+
